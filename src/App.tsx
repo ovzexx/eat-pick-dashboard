@@ -18,7 +18,7 @@ const sortInfo: Record<SortKey, { label: string; icon: string; description: stri
   sugar: { label: '저당류', icon: '◡', description: '당류 낮은 순' },
 }
 
-const API_BASE = 'http://127.0.0.1:8787'
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8787'
 
 const fmt = (value: number | null, unit: string) =>
   value == null ? '—' : `${value.toLocaleString('ko-KR', { maximumFractionDigits: 1 })}${unit}`

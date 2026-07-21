@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sqlite3
 from pathlib import Path
 from typing import Literal
@@ -9,10 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 DB_PATH = Path(__file__).parents[1] / "data" / "foods.db"
 QUALITY_FILTER = "normalized=1 AND calories>=5 AND calories IS NOT NULL AND protein IS NOT NULL AND sugar IS NOT NULL AND (protein>0 OR sugar>0)"
+
+_default_origins = "http://127.0.0.1:5173,http://localhost:5173"
+ALLOWED_ORIGINS = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", _default_origins).split(",") if o.strip()]
+
 app = FastAPI(title="EAT-PICK Nutrition API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["GET"],
     allow_headers=["*"],
 )
