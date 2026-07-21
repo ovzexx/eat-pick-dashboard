@@ -52,6 +52,39 @@ def meta(data_type: str = "가공식품", category_large: str = ""):
     return {"total": total, "categories": categories, "mediumCategories": medium}
 
 
+@app.get("/api/suggest")
+def suggest(
+    q: str = Query("", max_length=100),
+    data_type: str = "가공식품",
+):
+    if not q:
+        return []
+    with db() as connection:
+        rows = connection.execute(
+            f"""SELECT DISTINCT name FROM foods
+                WHERE data_type=? AND {QUALITY_FILTER} AND name LIKE ?
+                ORDER BY name ASC LIMIT 10""",
+            (data_type, f"%{q}%"),
+        ).fetchall()
+    return [row[0] for row in rows]
+
+
+@app.get("/api/foods/by-ids")
+def foods_by_ids(ids: str = Query(...)):
+    id_list = [int(i) for i in ids.split(",") if i.strip().isdigit()]
+    if not id_list:
+        return []
+    placeholders = ",".join("?" * len(id_list))
+    with db() as connection:
+        result = connection.execute(
+            f"""SELECT id,food_code,name,manufacturer,category_large,category_medium,
+                       original_basis,calories,protein,sugar
+                FROM foods WHERE id IN ({placeholders})""",
+            id_list,
+        ).fetchall()
+    return [dict(row) for row in result]
+
+
 @app.get("/api/foods")
 def foods(
     data_type: str = "가공식품",
