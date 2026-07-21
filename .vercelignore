@@ -1,0 +1,8 @@
+data/
+backend/
+.venv/
+node_modules/
+api.log
+build.sh
+railway.json
+requirements.txt
